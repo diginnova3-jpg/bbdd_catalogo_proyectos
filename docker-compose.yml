@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: container_catalogo_postgres  
+    environment:
+      POSTGRES_USER: postgres          
+      POSTGRES_PASSWORD: Proyectran  
+      POSTGRES_DB: catalogo_proyectos   # 
+    ports:
+      - "5433:5432"                    # Si tienes otro PostgreSQL, cambia el puerto
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: catalogo_pgadmin   # ← Puedes cambiar el nombre
+    environment:
+      PGADMIN_DEFAULT_EMAIL: diginnova3@proyectran.com  # ← Cambia el email
+      PGADMIN_DEFAULT_PASSWORD: Proyectran9999        # CÁMBIALO SÍ O SÍ!
+    ports:
+      - "5050:80"                      # Cambia si el 5050 está ocupado
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
