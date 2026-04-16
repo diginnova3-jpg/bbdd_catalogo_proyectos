@@ -16,13 +16,13 @@ CREATE TABLE public.proyectos (
 	fecha_fin date NULL,
 	estado_proyecto varchar(20) DEFAULT 'cerrado'::character varying NULL,
 	visibilidad varchar(20) DEFAULT 'interno'::character varying NULL,
-	created_at timestamp DEFAULT now() NULL,
-	updated_at timestamp DEFAULT now() NULL,
+	created_at timestamp DEFAULT now() NULL,	-- lo veo innecesario al tener fecha_inicio
+	updated_at timestamp DEFAULT now() NULL,	-- el proyecto puede estar cerrado y reabrirse porque se va a agragar algun modulo
 	embedding public.vector NULL,
 	vinculado_a_subvencion bool DEFAULT false NULL,
-	entidad_convoca_subv varchar(50) NULL,
-	sector_empresarial varchar(150) NULL,
-	categoria_tecnologica varchar(200) NULL,
+	entidad_convoca_subv varchar(50) NULL,	-- entidad que convoca subv o ayda recibida
+	categoria_empresarial_id varchar(150) NULL,	-- industrial, sector publico, retail, 
+	area_tecnologica_id varchar(200) NULL,	-- IA, Blockchain, web, etc...
 	CONSTRAINT check_entidad_convoca_subv CHECK (((entidad_convoca_subv IS NULL) OR ((entidad_convoca_subv)::text = ANY ((ARRAY['Ayuntamiento'::character varying, 'Cabildo'::character varying, 'Gobierno de Canarias'::character varying, 'Gobierno de España/Ministerio'::character varying, 'Unión Europea'::character varying, 'Otras'::character varying])::text[])))),
 	CONSTRAINT check_estado CHECK (((estado_proyecto)::text = ANY ((ARRAY['cerrado'::character varying, 'reabierto'::character varying])::text[]))),
 	CONSTRAINT check_visibilidad CHECK (((visibilidad)::text = ANY ((ARRAY['publico'::character varying, 'interno'::character varying, 'privado'::character varying])::text[]))),
@@ -37,9 +37,16 @@ CREATE TABLE area_tecnologica (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) UNIQUE NOT NULL,
     descripcion TEXT,
-    responsable VARCHAR(100)
+    responsable VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW(),	
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE public.sector_empresarial (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL,
+    descripcion TEXT,
+);
 
 CREATE TABLE tareas (
     id SERIAL PRIMARY KEY,
@@ -60,4 +67,5 @@ CREATE TABLE tareas (
     
     CONSTRAINT check_estado_tarea CHECK (estado IN ('pendiente', 'en_progreso', 'completada', 'bloqueada', 'cancelada'))
 );
+
 
