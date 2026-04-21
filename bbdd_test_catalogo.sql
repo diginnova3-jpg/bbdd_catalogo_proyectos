@@ -128,7 +128,19 @@ ALTER TABLE public.proyectos ADD CONSTRAINT proyectos_cliente_id_fkey FOREIGN KE
 ALTER TABLE public.proyectos ADD CONSTRAINT proyectos_sector_empresarial_id_fkey FOREIGN KEY (sector_empresarial_id) REFERENCES public.sector_empresarial(id);
 
 
-
+-- Tabla de funcionalidades
+CREATE TABLE public.funcionalidades (
+    id SERIAL PRIMARY KEY,
+    proyecto_id INTEGER NOT NULL,
+    nombre VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    orden INTEGER DEFAULT 0,  
+    CONSTRAINT funcionalidades_proyecto_id_fkey
+        FOREIGN KEY (proyecto_id) 
+        REFERENCES public.proyectos(id) 
+        ON DELETE CASCADE,
+    UNIQUE(proyecto_id, nombre)
+);
 
 -- =====================================================
 -- 4. TABLA TAREAS (depende de proyectos y area_implicadas)
@@ -140,17 +152,66 @@ CREATE TABLE public.tareas (
 	nombre varchar(200) NOT NULL,
 	descripcion text NULL,
 	prioridad varchar(10) NULL,
-	asignado_a varchar(100) NULL,
 	fecha_creacion timestamp NULL,
 	fecha_completado timestamp NULL,
 	embedding public.vector NULL,
 	area_implicada_id int4 NULL,
+	empleado_id int4 NULL,
 	CONSTRAINT tareas_asana_id_key UNIQUE (asana_id),
 	CONSTRAINT tareas_pkey PRIMARY KEY (id)
 );
 
+ALTER TABLE public.tareas ADD CONSTRAINT fk_tareas_empleados FOREIGN KEY (empleado_id) REFERENCES public.empleados(id) ON DELETE SET NULL;
 ALTER TABLE public.tareas ADD CONSTRAINT tareas_area_implicada_id_fkey FOREIGN KEY (area_implicada_id) REFERENCES public.areas_implicadas(id);
 ALTER TABLE public.tareas ADD CONSTRAINT tareas_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE;
+
+
+CREATE TABLE public.subtareas (
+	id serial4 NOT NULL,
+	asana_id varchar(50) NOT NULL,
+	tarea_id int4 NOT NULL,
+	nombre varchar(200) NOT NULL,
+	descripcion text NULL,
+	prioridad varchar(10) NULL,
+	estado varchar(25) NULL,
+	fecha_creacion timestamp DEFAULT now() NULL,
+	fecha_completado timestamp NULL,
+	horas_estimadas numeric(5, 2) NULL,
+	horas_reales numeric(5, 2) NULL,
+	embedding public.vector NULL,
+	orden int4 DEFAULT 0 NULL,
+	CONSTRAINT subtareas_asana_id_key UNIQUE (asana_id),
+	CONSTRAINT subtareas_pkey PRIMARY KEY (id),
+	CONSTRAINT subtareas_prioridad_check CHECK (((prioridad)::text = ANY ((ARRAY['alta'::character varying, 'media'::character varying, 'baja'::character varying])::text[])))
+);
+ALTER TABLE public.subtareas ADD CONSTRAINT subtareas_tarea_id_fkey FOREIGN KEY (tarea_id) REFERENCES public.tareas(id) ON DELETE CASCADE;
+
+
+CREATE TABLE public.empleados (
+	id serial4 NOT NULL,
+	asana_id varchar(50) NOT NULL,
+	nombre varchar(200) NOT NULL,
+	email varchar(200) NULL,
+	cargo varchar(100) NULL,
+	activo bool DEFAULT true NULL,
+	created_at timestamp DEFAULT now() NULL,
+	updated_at timestamp DEFAULT now() NULL,
+	CONSTRAINT empleados_asana_id_key UNIQUE (asana_id),
+	CONSTRAINT empleados_email_key UNIQUE (email),
+	CONSTRAINT empleados_pkey PRIMARY KEY (id)
+);
+
+
+CREATE TABLE public.proyectos_empleados (
+	id serial4 NOT NULL,
+	proyecto_id int4 NOT NULL,
+	empleado_id int4 NOT NULL,
+	CONSTRAINT proyectos_empleados_pkey PRIMARY KEY (id),
+	CONSTRAINT proyectos_empleados_proyecto_id_empleado_id_key UNIQUE (proyecto_id, empleado_id)
+);
+
+ALTER TABLE public.proyectos_empleados ADD CONSTRAINT proyectos_empleados_empleado_id_fkey FOREIGN KEY (empleado_id) REFERENCES public.empleados(id) ON DELETE CASCADE;
+ALTER TABLE public.proyectos_empleados ADD CONSTRAINT proyectos_empleados_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE;
 
 
 
