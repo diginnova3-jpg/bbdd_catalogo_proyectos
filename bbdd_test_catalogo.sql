@@ -113,19 +113,28 @@ CREATE TABLE public.proyectos (
 	embedding public.vector NULL,
 	vinculado_a_subvencion bool DEFAULT false NULL,
 	entidad_convoca_subv varchar(100) NULL,
-	area_tecnologica_id int4 NULL,
 	sector_empresarial_id int4 NULL,
 	cliente_id int4 NULL,
-	CONSTRAINT check_entidad_convoca_subv CHECK (((entidad_convoca_subv IS NULL) OR ((entidad_convoca_subv)::text = ANY ((ARRAY['Ayuntamiento'::character varying, 'Cabildo'::character varying, 'Gobierno de Canarias'::character varying, 'Gobierno de España/Ministerio'::character varying, 'Unión Europea'::character varying, 'Otras'::character varying])::text[])))),
-	CONSTRAINT check_estado CHECK (((estado_proyecto)::text = ANY ((ARRAY['cerrado'::character varying, 'reabierto'::character varying])::text[]))),
-	CONSTRAINT check_visibilidad CHECK (((visibilidad)::text = ANY ((ARRAY['publico'::character varying, 'interno'::character varying, 'privado'::character varying])::text[]))),
+	CONSTRAINT check_entidad_convoca_subv CHECK (((entidad_convoca_subv IS NULL) OR ((entidad_convoca_subv)::text = ANY (ARRAY[('Ayuntamiento'::character varying)::text, ('Cabildo'::character varying)::text, ('Gobierno de Canarias'::character varying)::text, ('Gobierno de España/Ministerio'::character varying)::text, ('Unión Europea'::character varying)::text, ('Otras'::character varying)::text])))),
+	CONSTRAINT check_estado CHECK (((estado_proyecto)::text = ANY (ARRAY[('cerrado'::character varying)::text, ('reabierto'::character varying)::text]))),
+	CONSTRAINT check_visibilidad CHECK (((visibilidad)::text = ANY (ARRAY[('publico'::character varying)::text, ('interno'::character varying)::text, ('privado'::character varying)::text]))),
 	CONSTRAINT proyectos_asana_id_key UNIQUE (asana_id),
 	CONSTRAINT proyectos_pkey PRIMARY KEY (id)
 );
 
-ALTER TABLE public.proyectos ADD CONSTRAINT proyectos_area_tecnologica_id_fkey FOREIGN KEY (area_tecnologica_id) REFERENCES public.area_tecnologica(id);
 ALTER TABLE public.proyectos ADD CONSTRAINT proyectos_cliente_id_fkey FOREIGN KEY (cliente_id) REFERENCES public.clientes(id);
 ALTER TABLE public.proyectos ADD CONSTRAINT proyectos_sector_empresarial_id_fkey FOREIGN KEY (sector_empresarial_id) REFERENCES public.sector_empresarial(id);
+
+
+CREATE TABLE public.proyecto_area_tecnologica (
+	id serial4 NOT NULL,
+	proyecto_id int4 NOT NULL,
+	area_tecnologica_id int4 NOT NULL,
+	CONSTRAINT proyecto_area_tecnologica_pkey PRIMARY KEY (id),
+	CONSTRAINT unique_proyecto_area UNIQUE (proyecto_id, area_tecnologica_id)
+);
+ALTER TABLE public.proyecto_area_tecnologica ADD CONSTRAINT proyecto_area_tecnologica_area_tecnologica_id_fkey FOREIGN KEY (area_tecnologica_id) REFERENCES public.area_tecnologica(id) ON DELETE CASCADE;
+ALTER TABLE public.proyecto_area_tecnologica ADD CONSTRAINT proyecto_area_tecnologica_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE;
 
 
 -- Tabla de funcionalidades
@@ -141,6 +150,22 @@ CREATE TABLE public.funcionalidades (
         ON DELETE CASCADE,
     UNIQUE(proyecto_id, nombre)
 );
+
+
+CREATE TABLE public.empleados (
+	id serial4 NOT NULL,
+	asana_id varchar(50) NOT NULL,
+	nombre varchar(200) NOT NULL,
+	email varchar(200) NULL,
+	cargo varchar(100) NULL,
+	activo bool DEFAULT true NULL,
+	created_at timestamp DEFAULT now() NULL,
+	updated_at timestamp DEFAULT now() NULL,
+	CONSTRAINT empleados_asana_id_key UNIQUE (asana_id),
+	CONSTRAINT empleados_email_key UNIQUE (email),
+	CONSTRAINT empleados_pkey PRIMARY KEY (id)
+);
+
 
 -- =====================================================
 -- 4. TABLA TAREAS (depende de proyectos y area_implicadas)
@@ -187,19 +212,7 @@ CREATE TABLE public.subtareas (
 ALTER TABLE public.subtareas ADD CONSTRAINT subtareas_tarea_id_fkey FOREIGN KEY (tarea_id) REFERENCES public.tareas(id) ON DELETE CASCADE;
 
 
-CREATE TABLE public.empleados (
-	id serial4 NOT NULL,
-	asana_id varchar(50) NOT NULL,
-	nombre varchar(200) NOT NULL,
-	email varchar(200) NULL,
-	cargo varchar(100) NULL,
-	activo bool DEFAULT true NULL,
-	created_at timestamp DEFAULT now() NULL,
-	updated_at timestamp DEFAULT now() NULL,
-	CONSTRAINT empleados_asana_id_key UNIQUE (asana_id),
-	CONSTRAINT empleados_email_key UNIQUE (email),
-	CONSTRAINT empleados_pkey PRIMARY KEY (id)
-);
+
 
 
 CREATE TABLE public.proyectos_empleados (
