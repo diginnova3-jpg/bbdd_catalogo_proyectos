@@ -4,6 +4,24 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- public.ambitos_geograficos definition
+
+-- Drop table
+
+-- DROP TABLE public.ambitos_geograficos;
+
+CREATE TABLE public.ambitos_geograficos (
+	id serial4 NOT NULL,
+	nombre varchar(50) NOT NULL,
+	CONSTRAINT ambitos_geograficos_nombre_key UNIQUE (nombre),
+	CONSTRAINT ambitos_geograficos_pkey PRIMARY KEY (id)
+);
+
+
+-- public.area_tecnologica_comercial definition
+
+-- Drop table
+
 -- DROP TABLE public.area_tecnologica_comercial;
 
 CREATE TABLE public.area_tecnologica_comercial (
@@ -15,6 +33,10 @@ CREATE TABLE public.area_tecnologica_comercial (
 	CONSTRAINT area_tecnologica_pkey PRIMARY KEY (id)
 );
 
+
+-- public.areas_implicadas definition
+
+-- Drop table
 
 -- DROP TABLE public.areas_implicadas;
 
@@ -30,6 +52,10 @@ CREATE TABLE public.areas_implicadas (
 );
 
 
+-- public.auditoria definition
+
+-- Drop table
+
 -- DROP TABLE public.auditoria;
 
 CREATE TABLE public.auditoria (
@@ -44,6 +70,10 @@ CREATE TABLE public.auditoria (
 	CONSTRAINT auditoria_pkey PRIMARY KEY (id)
 );
 
+
+-- public.clientes definition
+
+-- Drop table
 
 -- DROP TABLE public.clientes;
 
@@ -62,6 +92,10 @@ CREATE TABLE public.clientes (
 );
 
 
+-- public.cpv definition
+
+-- Drop table
+
 -- DROP TABLE public.cpv;
 
 CREATE TABLE public.cpv (
@@ -71,23 +105,36 @@ CREATE TABLE public.cpv (
 );
 
 
+-- public.empleados definition
+
+-- Drop table
+
 -- DROP TABLE public.empleados;
 
 CREATE TABLE public.empleados (
 	id serial4 NOT NULL,
 	asana_id varchar(50) NOT NULL,
-	nombre varchar(200) NOT NULL,
-	email varchar(200) NULL,
+	nombre varchar(100) NOT NULL,
+	email varchar(255) NOT NULL,
 	cargo varchar(100) NULL,
-	activo bool DEFAULT true NULL,
-	created_at timestamp DEFAULT now() NULL,
+	activo bool DEFAULT true NOT NULL,
+	created_at timestamptz DEFAULT CURRENT_TIMESTAMP NULL,
 	updated_at timestamp DEFAULT now() NULL,
 	rol varchar(50) NULL,
+	apellidos varchar(100) NULL,
+	password_hash varchar(255) NOT NULL,
+	telefono varchar(20) NULL,
+	ultimo_acceso timestamptz NULL,
 	CONSTRAINT empleados_asana_id_key UNIQUE (asana_id),
 	CONSTRAINT empleados_email_key UNIQUE (email),
-	CONSTRAINT empleados_pkey PRIMARY KEY (id)
+	CONSTRAINT empleados_pkey PRIMARY KEY (id),
+	CONSTRAINT empleados_rol_check CHECK (((rol IS NULL) OR ((rol)::text = ANY (ARRAY[('noProfesional'::character varying)::text, ('profesional'::character varying)::text, ('admin'::character varying)::text]))))
 );
 
+
+-- public.entidad_colaboradora definition
+
+-- Drop table
 
 -- DROP TABLE public.entidad_colaboradora;
 
@@ -98,6 +145,10 @@ CREATE TABLE public.entidad_colaboradora (
 	CONSTRAINT entidad_colaboradora_pkey PRIMARY KEY (id)
 );
 
+
+-- public.linaje_datos definition
+
+-- Drop table
 
 -- DROP TABLE public.linaje_datos;
 
@@ -112,6 +163,10 @@ CREATE TABLE public.linaje_datos (
 	CONSTRAINT linaje_datos_tabla_nombre_registro_id_key UNIQUE (tabla_nombre, tabla_id)
 );
 
+
+-- public.metadata_columnas definition
+
+-- Drop table
 
 -- DROP TABLE public.metadata_columnas;
 
@@ -131,6 +186,10 @@ CREATE TABLE public.metadata_columnas (
 	CONSTRAINT metadata_columnas_tabla_nombre_columna_nombre_key UNIQUE (tabla_nombre, columna_nombre)
 );
 
+
+-- public.productos definition
+
+-- Drop table
 
 -- DROP TABLE public.productos;
 
@@ -153,6 +212,31 @@ CREATE TABLE public.productos (
 );
 
 
+-- public.roles definition
+
+-- Drop table
+
+-- DROP TABLE public.roles;
+
+CREATE TABLE public.roles (
+	id serial4 NOT NULL,
+	codigo varchar(30) NOT NULL,
+	nombre varchar(100) NOT NULL,
+	descripcion text NULL,
+	nivel int4 DEFAULT 0 NOT NULL,
+	gestiona_permisos bool DEFAULT false NOT NULL,
+	es_protegido bool DEFAULT false NOT NULL,
+	activo bool DEFAULT true NOT NULL,
+	CONSTRAINT roles_codigo_check CHECK (((codigo)::text = ANY ((ARRAY['admin'::character varying, 'supervisor'::character varying, 'empleado'::character varying, 'noEmpleado'::character varying])::text[]))),
+	CONSTRAINT roles_codigo_key UNIQUE (codigo),
+	CONSTRAINT roles_pkey PRIMARY KEY (id)
+);
+
+
+-- public.sector_empresarial_comercial definition
+
+-- Drop table
+
 -- DROP TABLE public.sector_empresarial_comercial;
 
 CREATE TABLE public.sector_empresarial_comercial (
@@ -164,6 +248,10 @@ CREATE TABLE public.sector_empresarial_comercial (
 );
 
 
+-- public.sector_empresarial_interno definition
+
+-- Drop table
+
 -- DROP TABLE public.sector_empresarial_interno;
 
 CREATE TABLE public.sector_empresarial_interno (
@@ -173,6 +261,10 @@ CREATE TABLE public.sector_empresarial_interno (
 	CONSTRAINT sector_empresarial_interno_pkey PRIMARY KEY (id)
 );
 
+
+-- public.sedes definition
+
+-- Drop table
 
 -- DROP TABLE public.sedes;
 
@@ -193,6 +285,142 @@ CREATE TABLE public.sedes (
 );
 
 
+-- public.tecnologia_basada definition
+
+-- Drop table
+
+-- DROP TABLE public.tecnologia_basada;
+
+CREATE TABLE public.tecnologia_basada (
+	id serial4 NOT NULL,
+	nombre varchar(100) NOT NULL,
+	CONSTRAINT tecnologia_basada_nombre_key UNIQUE (nombre),
+	CONSTRAINT tecnologia_basada_pkey PRIMARY KEY (id)
+);
+
+
+-- public.tipos_contrato definition
+
+-- Drop table
+
+-- DROP TABLE public.tipos_contrato;
+
+CREATE TABLE public.tipos_contrato (
+	id serial4 NOT NULL,
+	nombre varchar(50) NOT NULL,
+	CONSTRAINT tipos_contrato_nombre_key UNIQUE (nombre),
+	CONSTRAINT tipos_contrato_pkey PRIMARY KEY (id)
+);
+
+
+-- public.trl_nivel_madurez definition
+
+-- Drop table
+
+-- DROP TABLE public.trl_nivel_madurez;
+
+CREATE TABLE public.trl_nivel_madurez (
+	id serial4 NOT NULL,
+	nombre varchar(100) NOT NULL,
+	CONSTRAINT tlr_nombre_key UNIQUE (nombre),
+	CONSTRAINT tlr_pkey PRIMARY KEY (id)
+);
+
+
+-- public."version" definition
+
+-- Drop table
+
+-- DROP TABLE public."version";
+
+CREATE TABLE public."version" (
+	id serial4 NOT NULL,
+	nombre varchar(50) NOT NULL,
+	CONSTRAINT version_nombre_key UNIQUE (nombre),
+	CONSTRAINT version_pkey PRIMARY KEY (id)
+);
+
+
+-- public.proyectos definition
+
+-- Drop table
+
+-- DROP TABLE public.proyectos;
+
+CREATE TABLE public.proyectos (
+	id serial4 NOT NULL,
+	asana_id varchar(50) NOT NULL,
+	nombre varchar(200) NOT NULL,
+	descripcion text NULL,
+	url_demo varchar(200) NULL,
+	fecha_inicio timestamp NULL,
+	fecha_finalizacion timestamp NULL,
+	estado_proyecto varchar(20) DEFAULT 'cerrado'::character varying NULL,
+	visibilidad bool DEFAULT true NULL,
+	created_at timestamp DEFAULT now() NULL,
+	updated_at timestamp DEFAULT now() NULL,
+	vinculado_a_subvencion bool DEFAULT false NULL,
+	entidad_convoca_subv varchar(100) NULL,
+	sector_empresarial_id int4 NULL,
+	cliente_id int4 NULL,
+	descrip_comercial text NULL,
+	trl_nivel_madurez_id int4 NULL,
+	colab_entidad bool DEFAULT false NOT NULL,
+	horas_gastadas numeric(6, 2) DEFAULT 0.00 NOT NULL,
+	ambito_geografico_id int4 NULL,
+	importe_base_imponible numeric(12, 2) DEFAULT 0.00 NOT NULL,
+	horas_tot_contratadas numeric(6, 2) DEFAULT 0.00 NOT NULL,
+	version_id int4 NULL,
+	CONSTRAINT check_entidad_convoca_subv CHECK (((entidad_convoca_subv IS NULL) OR ((entidad_convoca_subv)::text = ANY (ARRAY[('Ayuntamiento'::character varying)::text, ('Cabildo'::character varying)::text, ('Gobierno de Canarias'::character varying)::text, ('Gobierno de España/Ministerio'::character varying)::text, ('Unión Europea'::character varying)::text, ('Otras'::character varying)::text])))),
+	CONSTRAINT check_estado CHECK (((estado_proyecto)::text = ANY (ARRAY[('cerrado'::character varying)::text, ('reabierto'::character varying)::text]))),
+	CONSTRAINT proyectos_asana_id_key UNIQUE (asana_id),
+	CONSTRAINT proyectos_pkey PRIMARY KEY (id),
+	CONSTRAINT proyectos_ambito_geografico_id_fkey FOREIGN KEY (ambito_geografico_id) REFERENCES public.ambitos_geograficos(id),
+	CONSTRAINT proyectos_cliente_id_fkey FOREIGN KEY (cliente_id) REFERENCES public.clientes(id),
+	CONSTRAINT proyectos_sector_empresarial_id_fkey FOREIGN KEY (sector_empresarial_id) REFERENCES public.sector_empresarial_comercial(id),
+	CONSTRAINT proyectos_trl_nivel_madurez_id_fkey FOREIGN KEY (trl_nivel_madurez_id) REFERENCES public.trl_nivel_madurez(id),
+	CONSTRAINT proyectos_version_id_fkey FOREIGN KEY (version_id) REFERENCES public."version"(id)
+);
+
+
+-- public.proyectos_cpv definition
+
+-- Drop table
+
+-- DROP TABLE public.proyectos_cpv;
+
+CREATE TABLE public.proyectos_cpv (
+	id serial4 NOT NULL,
+	proyecto_id int4 NOT NULL,
+	cpv_codigo varchar(8) NOT NULL,
+	CONSTRAINT proyectos_cpv_pkey PRIMARY KEY (id),
+	CONSTRAINT unique_proyecto_cpv UNIQUE (proyecto_id, cpv_codigo),
+	CONSTRAINT fk_proyectos_cpv_cpv FOREIGN KEY (cpv_codigo) REFERENCES public.cpv(id_codigo) ON DELETE RESTRICT,
+	CONSTRAINT fk_proyectos_cpv_proyecto FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE
+);
+
+
+-- public.proyectos_empleados definition
+
+-- Drop table
+
+-- DROP TABLE public.proyectos_empleados;
+
+CREATE TABLE public.proyectos_empleados (
+	id serial4 NOT NULL,
+	proyecto_id int4 NOT NULL,
+	empleado_id int4 NOT NULL,
+	CONSTRAINT proyectos_empleados_pkey PRIMARY KEY (id),
+	CONSTRAINT proyectos_empleados_proyecto_id_empleado_id_key UNIQUE (proyecto_id, empleado_id),
+	CONSTRAINT proyectos_empleados_empleado_id_fkey FOREIGN KEY (empleado_id) REFERENCES public.empleados(id) ON DELETE CASCADE,
+	CONSTRAINT proyectos_empleados_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE
+);
+
+
+-- public.servicios definition
+
+-- Drop table
+
 -- DROP TABLE public.servicios;
 
 CREATE TABLE public.servicios (
@@ -208,143 +436,19 @@ CREATE TABLE public.servicios (
 	created_at timestamp DEFAULT now() NULL,
 	updated_at timestamp DEFAULT now() NULL,
 	visibilidad bool DEFAULT true NULL,
+	horas_totales numeric(6, 2) DEFAULT 0.00 NOT NULL,
+	horas_gastadas numeric(6, 2) DEFAULT 0.00 NOT NULL,
+	tipo_contrato_id int4 NULL,
 	CONSTRAINT check_servicios_subv_entidad CHECK (((entidad_convoca_subv IS NULL) OR ((entidad_convoca_subv)::text = ANY (ARRAY[('Ayuntamiento'::character varying)::text, ('Cabildo'::character varying)::text, ('Gobierno de Canarias'::character varying)::text, ('Gobierno de España/Ministerio'::character varying)::text, ('Unión Europea'::character varying)::text, ('Otras'::character varying)::text])))),
 	CONSTRAINT servicios_nombre_key UNIQUE (nombre),
-	CONSTRAINT servicios_pkey PRIMARY KEY (id)
+	CONSTRAINT servicios_pkey PRIMARY KEY (id),
+	CONSTRAINT servicios_tipo_contrato_id_fkey FOREIGN KEY (tipo_contrato_id) REFERENCES public.tipos_contrato(id)
 );
 
 
--- DROP TABLE public.tecnologia_basada;
+-- public.tareas definition
 
-CREATE TABLE public.tecnologia_basada (
-	id serial4 NOT NULL,
-	nombre varchar(100) NOT NULL,
-	CONSTRAINT tecnologia_basada_nombre_key UNIQUE (nombre),
-	CONSTRAINT tecnologia_basada_pkey PRIMARY KEY (id)
-);
-
-
--- DROP TABLE public.trl_nivel_madurez;
-
-CREATE TABLE public.trl_nivel_madurez (
-	id serial4 NOT NULL,
-	nombre varchar(100) NOT NULL,
-	CONSTRAINT tlr_nombre_key UNIQUE (nombre),
-	CONSTRAINT tlr_pkey PRIMARY KEY (id)
-);
-
-
--- DROP TABLE public.proyectos;
-
-CREATE TABLE public.proyectos (
-	id serial4 NOT NULL,
-	asana_id varchar(50) NOT NULL,
-	nombre varchar(200) NOT NULL,
-	descripcion text NULL,
-	ano_ejecucion int4 NULL,
-	url_demo varchar(200) NULL,
-	fecha_inicio timestamp NULL,
-	fecha_finalizacion timestamp NULL,
-	estado_proyecto varchar(20) DEFAULT 'cerrado'::character varying NULL,
-	visibilidad bool DEFAULT true NULL,
-	created_at timestamp DEFAULT now() NULL,
-	updated_at timestamp DEFAULT now() NULL,
-	vinculado_a_subvencion bool DEFAULT false NULL,
-	entidad_convoca_subv varchar(100) NULL,
-	sector_empresarial_id int4 NULL,
-	cliente_id int4 NULL,
-	descrip_comercial text NULL,
-	trl_nivel_madurez_id int4 NULL,
-	colab_entidad bool DEFAULT false NOT NULL,
-	CONSTRAINT check_entidad_convoca_subv CHECK (((entidad_convoca_subv IS NULL) OR ((entidad_convoca_subv)::text = ANY (ARRAY[('Ayuntamiento'::character varying)::text, ('Cabildo'::character varying)::text, ('Gobierno de Canarias'::character varying)::text, ('Gobierno de España/Ministerio'::character varying)::text, ('Unión Europea'::character varying)::text, ('Otras'::character varying)::text])))),
-	CONSTRAINT check_estado CHECK (((estado_proyecto)::text = ANY (ARRAY[('cerrado'::character varying)::text, ('reabierto'::character varying)::text]))),
-	CONSTRAINT proyectos_asana_id_key UNIQUE (asana_id),
-	CONSTRAINT proyectos_pkey PRIMARY KEY (id),
-	CONSTRAINT proyectos_cliente_id_fkey FOREIGN KEY (cliente_id) REFERENCES public.clientes(id),
-	CONSTRAINT proyectos_sector_empresarial_id_fkey FOREIGN KEY (sector_empresarial_id) REFERENCES public.sector_empresarial_comercial(id),
-	CONSTRAINT proyectos_trl_nivel_madurez_id_fkey FOREIGN KEY (trl_nivel_madurez_id) REFERENCES public.trl_nivel_madurez(id)
-);
-
-
--- DROP TABLE public.proyectos_cpv;
-
-CREATE TABLE public.proyectos_cpv (
-	id serial4 NOT NULL,
-	proyecto_id int4 NOT NULL,
-	cpv_codigo varchar(8) NOT NULL,
-	CONSTRAINT proyectos_cpv_pkey PRIMARY KEY (id),
-	CONSTRAINT unique_proyecto_cpv UNIQUE (proyecto_id, cpv_codigo),
-	CONSTRAINT fk_proyectos_cpv_cpv FOREIGN KEY (cpv_codigo) REFERENCES public.cpv(id_codigo) ON DELETE RESTRICT,
-	CONSTRAINT fk_proyectos_cpv_proyecto FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE
-);
-
-
--- DROP TABLE public.proyectos_empleados;
-
-CREATE TABLE public.proyectos_empleados (
-	id serial4 NOT NULL,
-	proyecto_id int4 NOT NULL,
-	empleado_id int4 NOT NULL,
-	CONSTRAINT proyectos_empleados_pkey PRIMARY KEY (id),
-	CONSTRAINT proyectos_empleados_proyecto_id_empleado_id_key UNIQUE (proyecto_id, empleado_id),
-	CONSTRAINT proyectos_empleados_empleado_id_fkey FOREIGN KEY (empleado_id) REFERENCES public.empleados(id) ON DELETE CASCADE,
-	CONSTRAINT proyectos_empleados_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE
-);
-
-
--- DROP TABLE public.psp_entidad_colaboradora;
-
-CREATE TABLE public.psp_entidad_colaboradora (
-	proyecto_id int4 NULL,
-	entidad_colaboradora_id int4 NOT NULL,
-	created_at timestamp DEFAULT now() NULL,
-	producto_id int4 NULL,
-	servicio_id int4 NULL,
-	id serial4 NOT NULL,
-	CONSTRAINT check_psp_entidad_solo_una CHECK ((((proyecto_id IS NOT NULL) AND (producto_id IS NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NOT NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NULL) AND (servicio_id IS NOT NULL)))),
-	CONSTRAINT psp_entidad_colaboradora_pkey PRIMARY KEY (id),
-	CONSTRAINT proyectos_entidad_colaboradora_entidad_id_fkey FOREIGN KEY (entidad_colaboradora_id) REFERENCES public.entidad_colaboradora(id) ON DELETE CASCADE,
-	CONSTRAINT psp_entidad_colaboradora_producto_id_fkey FOREIGN KEY (producto_id) REFERENCES public.productos(id) ON DELETE CASCADE,
-	CONSTRAINT psp_entidad_colaboradora_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE,
-	CONSTRAINT psp_entidad_colaboradora_servicio_id_fkey FOREIGN KEY (servicio_id) REFERENCES public.servicios(id) ON DELETE CASCADE
-);
-
-
--- DROP TABLE public.psp_sector_empresarial_interno;
-
-CREATE TABLE public.psp_sector_empresarial_interno (
-	proyecto_id int4 NULL,
-	sector_empresarial_interno_id int4 NOT NULL,
-	created_at timestamp DEFAULT now() NULL,
-	producto_id int4 NULL,
-	servicio_id int4 NULL,
-	id serial4 NOT NULL,
-	CONSTRAINT check_psp_sector_solo_una CHECK ((((proyecto_id IS NOT NULL) AND (producto_id IS NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NOT NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NULL) AND (servicio_id IS NOT NULL)))),
-	CONSTRAINT psp_sector_empresarial_interno_pkey PRIMARY KEY (id),
-	CONSTRAINT proyectos_sector_empresarial_interno_sector_id_fkey FOREIGN KEY (sector_empresarial_interno_id) REFERENCES public.sector_empresarial_interno(id) ON DELETE CASCADE,
-	CONSTRAINT psp_sector_empresarial_interno_producto_id_fkey FOREIGN KEY (producto_id) REFERENCES public.productos(id) ON DELETE CASCADE,
-	CONSTRAINT psp_sector_empresarial_interno_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE,
-	CONSTRAINT psp_sector_empresarial_interno_servicio_id_fkey FOREIGN KEY (servicio_id) REFERENCES public.servicios(id) ON DELETE CASCADE
-);
-
-
--- DROP TABLE public.psp_tecnologia_basada;
-
-CREATE TABLE public.psp_tecnologia_basada (
-	tecnologia_basada_id int4 NOT NULL,
-	created_at timestamp DEFAULT now() NULL,
-	proyecto_id int4 NULL,
-	producto_id int4 NULL,
-	servicio_id int4 NULL,
-	id serial4 NOT NULL,
-	CONSTRAINT check_solo_una_entidad CHECK ((((proyecto_id IS NOT NULL) AND (producto_id IS NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NOT NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NULL) AND (servicio_id IS NOT NULL)))),
-	CONSTRAINT psp_tecnologia_basada_pkey PRIMARY KEY (id),
-	CONSTRAINT proyectos_tecnologia_basada_tecnologia_id_fkey FOREIGN KEY (tecnologia_basada_id) REFERENCES public.tecnologia_basada(id) ON DELETE CASCADE,
-	CONSTRAINT psp_tecnologia_basada_producto_id_fkey FOREIGN KEY (producto_id) REFERENCES public.productos(id) ON DELETE CASCADE,
-	CONSTRAINT psp_tecnologia_basada_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE,
-	CONSTRAINT psp_tecnologia_basada_servicio_id_fkey FOREIGN KEY (servicio_id) REFERENCES public.servicios(id) ON DELETE CASCADE
-);
-
+-- Drop table
 
 -- DROP TABLE public.tareas;
 
@@ -368,6 +472,10 @@ CREATE TABLE public.tareas (
 );
 
 
+-- public.funcionalidades definition
+
+-- Drop table
+
 -- DROP TABLE public.funcionalidades;
 
 CREATE TABLE public.funcionalidades (
@@ -381,6 +489,11 @@ CREATE TABLE public.funcionalidades (
 	CONSTRAINT funcionalidades_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE
 );
 
+
+-- public.proyecto_area_tecnologica definition
+
+-- Drop table
+
 -- DROP TABLE public.proyecto_area_tecnologica;
 
 CREATE TABLE public.proyecto_area_tecnologica (
@@ -393,6 +506,76 @@ CREATE TABLE public.proyecto_area_tecnologica (
 	CONSTRAINT proyecto_area_tecnologica_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE
 );
 
+
+-- public.psp_entidad_colaboradora definition
+
+-- Drop table
+
+-- DROP TABLE public.psp_entidad_colaboradora;
+
+CREATE TABLE public.psp_entidad_colaboradora (
+	proyecto_id int4 NULL,
+	entidad_colaboradora_id int4 NOT NULL,
+	created_at timestamp DEFAULT now() NULL,
+	producto_id int4 NULL,
+	servicio_id int4 NULL,
+	id serial4 NOT NULL,
+	CONSTRAINT check_psp_entidad_solo_una CHECK ((((proyecto_id IS NOT NULL) AND (producto_id IS NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NOT NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NULL) AND (servicio_id IS NOT NULL)))),
+	CONSTRAINT psp_entidad_colaboradora_pkey PRIMARY KEY (id),
+	CONSTRAINT proyectos_entidad_colaboradora_entidad_id_fkey FOREIGN KEY (entidad_colaboradora_id) REFERENCES public.entidad_colaboradora(id) ON DELETE CASCADE,
+	CONSTRAINT psp_entidad_colaboradora_producto_id_fkey FOREIGN KEY (producto_id) REFERENCES public.productos(id) ON DELETE CASCADE,
+	CONSTRAINT psp_entidad_colaboradora_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE,
+	CONSTRAINT psp_entidad_colaboradora_servicio_id_fkey FOREIGN KEY (servicio_id) REFERENCES public.servicios(id) ON DELETE CASCADE
+);
+
+
+-- public.psp_sector_empresarial_interno definition
+
+-- Drop table
+
+-- DROP TABLE public.psp_sector_empresarial_interno;
+
+CREATE TABLE public.psp_sector_empresarial_interno (
+	proyecto_id int4 NULL,
+	sector_empresarial_interno_id int4 NOT NULL,
+	created_at timestamp DEFAULT now() NULL,
+	producto_id int4 NULL,
+	servicio_id int4 NULL,
+	id serial4 NOT NULL,
+	CONSTRAINT check_psp_sector_solo_una CHECK ((((proyecto_id IS NOT NULL) AND (producto_id IS NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NOT NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NULL) AND (servicio_id IS NOT NULL)))),
+	CONSTRAINT psp_sector_empresarial_interno_pkey PRIMARY KEY (id),
+	CONSTRAINT proyectos_sector_empresarial_interno_sector_id_fkey FOREIGN KEY (sector_empresarial_interno_id) REFERENCES public.sector_empresarial_interno(id) ON DELETE CASCADE,
+	CONSTRAINT psp_sector_empresarial_interno_producto_id_fkey FOREIGN KEY (producto_id) REFERENCES public.productos(id) ON DELETE CASCADE,
+	CONSTRAINT psp_sector_empresarial_interno_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE,
+	CONSTRAINT psp_sector_empresarial_interno_servicio_id_fkey FOREIGN KEY (servicio_id) REFERENCES public.servicios(id) ON DELETE CASCADE
+);
+
+
+-- public.psp_tecnologia_basada definition
+
+-- Drop table
+
+-- DROP TABLE public.psp_tecnologia_basada;
+
+CREATE TABLE public.psp_tecnologia_basada (
+	tecnologia_basada_id int4 NOT NULL,
+	created_at timestamp DEFAULT now() NULL,
+	proyecto_id int4 NULL,
+	producto_id int4 NULL,
+	servicio_id int4 NULL,
+	id serial4 NOT NULL,
+	CONSTRAINT check_solo_una_entidad CHECK ((((proyecto_id IS NOT NULL) AND (producto_id IS NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NOT NULL) AND (servicio_id IS NULL)) OR ((proyecto_id IS NULL) AND (producto_id IS NULL) AND (servicio_id IS NOT NULL)))),
+	CONSTRAINT psp_tecnologia_basada_pkey PRIMARY KEY (id),
+	CONSTRAINT proyectos_tecnologia_basada_tecnologia_id_fkey FOREIGN KEY (tecnologia_basada_id) REFERENCES public.tecnologia_basada(id) ON DELETE CASCADE,
+	CONSTRAINT psp_tecnologia_basada_producto_id_fkey FOREIGN KEY (producto_id) REFERENCES public.productos(id) ON DELETE CASCADE,
+	CONSTRAINT psp_tecnologia_basada_proyecto_id_fkey FOREIGN KEY (proyecto_id) REFERENCES public.proyectos(id) ON DELETE CASCADE,
+	CONSTRAINT psp_tecnologia_basada_servicio_id_fkey FOREIGN KEY (servicio_id) REFERENCES public.servicios(id) ON DELETE CASCADE
+);
+
+
+-- public.subtareas definition
+
+-- Drop table
 
 -- DROP TABLE public.subtareas;
 
@@ -412,7 +595,6 @@ CREATE TABLE public.subtareas (
 	CONSTRAINT subtareas_pkey PRIMARY KEY (id),
 	CONSTRAINT subtareas_tarea_id_fkey FOREIGN KEY (tarea_id) REFERENCES public.tareas(id) ON DELETE CASCADE
 );
-
 
 INSERT INTO areas_implicadas (nombre, descripcion, orden) VALUES
 ('Desarrollo', 'Desarrollo de software y programación', 1),
